@@ -1,0 +1,59 @@
+/* App.css */
+
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  background: #f0f8ff;
+}
+
+.app {
+  text-align: center;
+  padding: 2rem;
+}
+
+.pet {
+  width: 150px;
+  margin: 20px auto;
+}
+
+.level {
+  font-size: 1.2rem;
+  margin-top: 10px;
+}
+
+.streak {
+  font-size: 1.1rem;
+  color: #555;
+}
+
+.xp-bar {
+  width: 60%;
+  height: 20px;
+  margin: 10px auto;
+  background: #ccc;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.xp-fill {
+  height: 100%;
+  background: #4caf50;
+  width: 0;
+  transition: width 0.5s ease;
+}
+
+button {
+  padding: 0.5rem 1rem;
+  margin-top: 1rem;
+  font-size: 1rem;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #45a049;
+}
