@@ -1,16 +1,13 @@
-// App.jsx
 import { useState, useEffect } from 'react';
 import './App.css';
+import bearImage from './cute-pink-bear-png.webp'; 
 
 function App() {
   const [streak, setStreak] = useState(0);
   const [xp, setXp] = useState(0);
   const [level, setLevel] = useState(1);
   const [lastDoseTime, setLastDoseTime] = useState(null);
-
-  useEffect(() => {
-    updatePetImage();
-  }, [lastDoseTime]);
+  const [petImageSrc, setPetImageSrc] = useState(bearImage); // 🧸 state for image
 
   const logDose = () => {
     const now = Date.now();
@@ -27,19 +24,19 @@ function App() {
     }
   };
 
-  const updatePetImage = () => {
-    const img = document.getElementById('pet-img');
+  useEffect(() => {
+    // In the future, you can switch between different pet images here
     if (!lastDoseTime || Date.now() - lastDoseTime > 36 * 3600 * 1000) {
-      img.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Emoji_u1f641.svg/240px-Emoji_u1f641.svg.png';
+      setPetImageSrc(bearImage); // same image for now
     } else {
-      img.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Emoji_u1f60a.svg/240px-Emoji_u1f60a.svg.png';
+      setPetImageSrc(bearImage); // could use a different image here
     }
-  };
+  }, [lastDoseTime]);
 
   return (
     <div className="app">
-      <h1>🐻 BearBuddy</h1>
-      <img id="pet-img" className="pet" alt="Pet" />
+      <h1>🐻 BearBudddy</h1>
+      <img src={petImageSrc} className="pet" alt="Pet" />
       <div className="level">Level {level}</div>
       <div className="streak">Streak: {streak} days</div>
       <div className="xp-bar">

@@ -1,92 +1,108 @@
 #include <WiFi.h>
+#include <SPIFFS.h>
+#include <FS.h>
+#include <WebServer.h>
 #include <time.h>
-#include "secrets.h"
+#include <secrets.h>
 
 #define SENSOR_PIN 15
 
-int lastState = HIGH;
+WebServer server(80);
+int lastState = -1;
+
+void logToCSV(const String &status)
+{
+  File file = SPIFFS.open("/log.csv", FILE_APPEND);
+  if (!file)
+  {
+    Serial.println("❌ Failed to open file for appending");
+    return;
+  }
+
+  time_t now;
+  struct tm timeinfo;
+  time(&now);
+  localtime_r(&now, &timeinfo);
+
+  char timestamp[25];
+  strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", &timeinfo);
+
+  String line = String(timestamp) + "," + status + "\n";
+  file.print(line);
+  file.close();
+
+  Serial.print("✅ Logged: ");
+  Serial.println(line);
+}
+
+void handleDownload()
+{
+  File file = SPIFFS.open("/log.csv", "r");
+  if (!file)
+  {
+    server.send(500, "text/plain", "Failed to open file");
+    return;
+  }
+
+  server.sendHeader("Content-Type", "text/csv");
+  server.sendHeader("Content-Disposition", "attachment; filename=log.csv");
+  server.sendHeader("Connection", "close");
+  server.streamFile(file, "text/csv");
+  file.close();
+}
 
 void setup()
 {
   Serial.begin(115200);
   pinMode(SENSOR_PIN, INPUT_PULLUP);
 
-  // 1) Connect to Wi‑Fi
-  Serial.print("Connecting to WiFi");
+  if (!SPIFFS.begin(true))
+  {
+    Serial.println("❌ Failed to mount SPIFFS");
+    return;
+  }
+  Serial.println("✅ SPIFFS mounted");
+
+  WiFi.disconnect(true);
+  delay(1000);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  unsigned long wifiStart = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - wifiStart < 10000)
+  Serial.print("Connecting t2o WiFi");
+  while (WiFi.status() != WL_CONNECTED)
   {
     Serial.print(".");
     delay(500);
   }
-  if (WiFi.status() == WL_CONNECTED)
-  {
-    Serial.println(" ✅");
-    Serial.print("IP Address: ");
-    Serial.println(WiFi.localIP());
-  }
-  else
-  {
-    Serial.println(" ❌ Failed to connect WiFi");
-    // Without WiFi, NTP won’t work—but we’ll keep going anyway.
-  }
+  Serial.println("\n✅ WiFi connected");
+  Serial.println(WiFi.localIP());
 
-  // 2) Initialize NTP (only works if Wi‑Fi is up)
   configTime(0, 0, "pool.ntp.org", "time.nist.gov");
-
-  // 3) Wait up to 10 s for NTP to sync
-  Serial.print("Waiting for NTP sync");
-  time_t now = time(nullptr);
-  unsigned long ntpStart = millis();
-  while (now < 24 * 3600 && millis() - ntpStart < 10000)
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo))
   {
-    Serial.print(".");
-    delay(500);
-    now = time(nullptr);
-  }
-  if (now < 24 * 3600)
-  {
-    Serial.println(" ❌ NTP sync failed");
+    Serial.println("❌ Failed to obtain time");
   }
   else
   {
-    Serial.println(" ✅ NTP sync OK");
+    Serial.println("✅ Time synchronized");
   }
 
-  // 4) Set local timezone (Toronto)
-  setenv("TZ", "EST5EDT,M3.2.0,M11.1.0", 1);
-  tzset();
-
-  Serial.println("\n-- Ready to track pillbox events --");
+  server.on("/log.csv", HTTP_GET, handleDownload);
+  server.begin();
+  Serial.println("📡 HTTP server started");
 }
 
 void loop()
 {
-  int s = digitalRead(SENSOR_PIN);
-  if (s != lastState)
+  server.handleClient();
+
+  int currentState = digitalRead(SENSOR_PIN);
+  if (currentState != lastState)
   {
-    lastState = s;
-
-    // Get local time
-    time_t now = time(nullptr);
-    struct tm timeinfo;
-    localtime_r(&now, &timeinfo);
-
-    char buf[30];
-    strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &timeinfo);
-
-    // Print event
-    if (s == LOW)
-    {
-      Serial.printf("%s -> BOX OPENED\n", buf);
-    }
-    else
-    {
-      Serial.printf("%s -> BOX CLOSED\n", buf);
-    }
-
-    delay(100); // debounce
+    lastState = currentState;
+    String status = (currentState == LOW) ? "BOX_OPENED" : "BOX_CLOSED";
+    logToCSV(status);
+    delay(200); // debounce
   }
-  delay(50);
+
+  delay(100);
 }
