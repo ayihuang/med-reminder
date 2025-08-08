@@ -35,7 +35,7 @@ function App() {
 
   return (
     <div className="app">
-      <h1>🐻 BearBudddy</h1>
+      <h1>Daily Bloom</h1>
       <img src={petImageSrc} className="pet" alt="Pet" />
       <div className="level">Level {level}</div>
       <div className="streak">Streak: {streak} days</div>
@@ -43,6 +43,22 @@ function App() {
         <div className="xp-fill" style={{ width: `${xp % 100}%` }}></div>
       </div>
       <button onClick={logDose}>✅ I took my pill</button>
+      <button
+        className="download"
+        onClick={() => {
+          const ESP32_IP = "http://172.20.10.9"; // 
+          const downloadUrl = `${ESP32_IP}/log.csv`;
+
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = "log.csv";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }}
+>
+  ⬇ Download Pill Log
+</button>
     </div>
   );
 }
