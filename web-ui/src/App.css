@@ -4,7 +4,9 @@ body, html {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
-  background: #7bb8ec;
+  min-height: 100vh;
+  background: #7ccfeb;
+  background: linear-gradient(0deg, rgba(124, 207, 235, 1) 0%, rgba(152, 201, 217, 1) 50%, rgba(207, 238, 252, 1) 100%);
 }
 
 button {
@@ -35,3 +37,6 @@ button:hover {
 .download:hover {
   background: #2980b9;
 }
+
+
+

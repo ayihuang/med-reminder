@@ -48,11 +48,17 @@ export default function PlantGrowth() {
         return 0;
       }
     });
+
+
   };
 
   return (
     <div style={{ textAlign: "center" }}>
       <h2>Daily Bloom</h2>
+      {/* state label */}
+      <p style={{ fontSize: "1.2rem", marginBottom: "10px", color: "#555" }}>
+        Day {stage + 1} of {stages.length}
+      </p>
       <img
         src={stages[stage]}
         alt={`Plant Stage ${stage + 1}`}
