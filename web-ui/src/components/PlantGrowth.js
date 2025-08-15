@@ -24,44 +24,34 @@ const stages = [
 ];
 
 export default function PlantGrowth() {
-  const [stage, setStage] = useState(0); // Index in stages array
+  const [stage, setStage] = useState(0);
+  const [fade, setFade] = useState(true); // for fade animation
 
-  // Load saved stage from localStorage on mount
   useEffect(() => {
     const savedStage = localStorage.getItem("plantStage");
-    if (savedStage) {
-      setStage(parseInt(savedStage, 10));
-    }
+    if (savedStage) setStage(parseInt(savedStage, 10));
   }, []);
 
-  // Save stage to localStorage when it changes
   useEffect(() => {
     localStorage.setItem("plantStage", stage);
   }, [stage]);
 
   const handleDoseTaken = () => {
-    setStage((prev) => {
-      if (prev < stages.length - 1) {
-        return prev + 1;
-      } else {
-        // Reached stage 14, reset to stage 1
-        return 0;
-      }
-    });
-
-
+    // Fade out first
+    setFade(false);
+    setTimeout(() => {
+      setStage(prev => (prev < stages.length - 1 ? prev + 1 : 0));
+      setFade(true); // Fade back in
+    }, 500); // match transition duration
   };
 
   return (
     <div style={{ textAlign: "center" }}>
       <h2>Daily Bloom</h2>
-      {/* state label */}
-      <p style={{ fontSize: "1.2rem", marginBottom: "10px", color: "#555" }}>
-        Day {stage + 1} of {stages.length}
-      </p>
       <img
         src={stages[stage]}
         alt={`Plant Stage ${stage + 1}`}
+        className={fade ? "fade" : "fade fade-hidden"}
         style={{ maxWidth: "300px", height: "auto" }}
       />
       <div style={{ marginTop: "20px" }}>
@@ -69,21 +59,20 @@ export default function PlantGrowth() {
           Take Dose
         </button>
         <button
-        className="download"
-        onClick={() => {
-          const ESP32_IP = "http://172.20.10.9"; // 
-          const downloadUrl = `${ESP32_IP}/log.csv`;
-
-        const link = document.createElement("a");
-        link.href = downloadUrl;
-        link.download = "log.csv";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }}
->
-  ⬇ Download Pill Log
-</button>
+          className="download"
+          onClick={() => {
+            const ESP32_IP = "http://172.20.10.9";
+            const downloadUrl = `${ESP32_IP}/log.csv`;
+            const link = document.createElement("a");
+            link.href = downloadUrl;
+            link.download = "log.csv";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }}
+        >
+          ⬇ Download Pill Log
+        </button>
       </div>
     </div>
   );
