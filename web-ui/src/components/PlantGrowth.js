@@ -40,6 +40,12 @@ export default function PlantGrowth() {
     localStorage.setItem("plantStage", stage);
   }, [stage]);
 
+  useEffect(() => {
+    if (lastDose) {
+      localStorage.setItem("lastDose", lastDose);
+    }
+  }, [lastDose]);
+
   const handleDoseTaken = () => {
     // Fade out first
     setFade(false);
@@ -48,12 +54,14 @@ export default function PlantGrowth() {
       // Full date and time
       const now = new Date();
       const formatted = now.toLocaleString(undefined, {
+      weekday: "long",
       year: "numeric",
-      month: "long",
+      month: "short",
       day: "numeric",
-      hour: "2-digit",
+      hour: "numeric",
       minute: "2-digit",
       second: "2-digit",
+      hour12: true,
     });
 
       setLastDose(formatted);
@@ -97,7 +105,7 @@ export default function PlantGrowth() {
       </div>
       {lastDose && (
     <p style={{ marginTop: "10px", fontStyle: "italic" }}>
-      Last dose taken: {lastDose}
+      Last dose taken: {lastDose || "Never"}
     </p>
     )}
 
