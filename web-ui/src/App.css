@@ -12,8 +12,10 @@ body, html {
 button {
   padding: 0.5rem 1rem;
   margin-top: 1rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
   font-size: 1rem;
-  background: #4caf50;
+  background: #4bc750;
   color: white;
   border: none;
   border-radius: 8px;
@@ -28,6 +30,8 @@ button:hover {
   background: #3498db;
   color: white;
   padding: 0.6rem 1.2rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
   border: none;
   border-radius: 6px;
   cursor: pointer;

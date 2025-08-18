@@ -26,10 +26,14 @@ const stages = [
 export default function PlantGrowth() {
   const [stage, setStage] = useState(0);
   const [fade, setFade] = useState(true); // for fade animation
+  const [lastDose, setLastDose] = useState(null);
+
 
   useEffect(() => {
     const savedStage = localStorage.getItem("plantStage");
+    const savedDose = localStorage.getItem("lastDose"); 
     if (savedStage) setStage(parseInt(savedStage, 10));
+    if (savedDose) setLastDose(savedDose);
   }, []);
 
   useEffect(() => {
@@ -41,6 +45,19 @@ export default function PlantGrowth() {
     setFade(false);
     setTimeout(() => {
       setStage(prev => (prev < stages.length - 1 ? prev + 1 : 0));
+      // Full date and time
+      const now = new Date();
+      const formatted = now.toLocaleString(undefined, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+
+      setLastDose(formatted);
+      localStorage.setItem("lastDose", formatted);
       setFade(true); // Fade back in
     }, 500); // match transition duration
   };
@@ -48,6 +65,10 @@ export default function PlantGrowth() {
   return (
     <div style={{ textAlign: "center" }}>
       <h2>Daily Bloom</h2>
+      {/* state label */}
+      <p style={{ fontSize: "1.2rem", marginBottom: "10px", color: "#555" }}>
+        Day {stage + 1} of {stages.length}
+      </p>
       <img
         src={stages[stage]}
         alt={`Plant Stage ${stage + 1}`}
@@ -74,6 +95,12 @@ export default function PlantGrowth() {
           ⬇ Download Pill Log
         </button>
       </div>
+      {lastDose && (
+    <p style={{ marginTop: "10px", fontStyle: "italic" }}>
+      Last dose taken: {lastDose}
+    </p>
+    )}
+
     </div>
   );
 }
