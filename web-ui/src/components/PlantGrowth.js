@@ -27,7 +27,47 @@ export default function PlantGrowth() {
   const [stage, setStage] = useState(0);
   const [fade, setFade] = useState(true); // for fade animation
   const [lastDose, setLastDose] = useState(null);
+  const [skyGradient, setSkyGradient] = useState("");
 
+  useEffect(() => {
+    const updateGradient = () => {
+      const hour = new Date().getHours();
+      let topColor, middleColor, bottomColor;
+
+    if (hour >= 6 && hour < 12) {
+      // Morning
+      topColor = "#a0d8ef"; // light blue
+      middleColor = "#b0e0e6";
+      bottomColor = "#d0f0f7";
+    } else if (hour >= 12 && hour < 18) {
+      // Afternoon
+      topColor = "#87ceeb";
+      middleColor = "#98c9d9";
+      bottomColor = "#cfeefc";
+    } else if (hour >= 18 && hour < 20) {
+      // Sunset
+      topColor = "#ffcc99";
+      middleColor = "#ff9966";
+      bottomColor = "#ffcccc";
+    } else {
+      // Night
+      topColor = "#2c3e50";
+      middleColor = "#34495e";
+      bottomColor = "#1a252f";
+    }
+    
+    document.body.style.background = `linear-gradient(0deg, ${topColor} 0%, ${middleColor} 50%, ${bottomColor} 100%)`;
+    document.body.style.margin = 0; // ensures no whitespace
+    document.body.style.minHeight = "100vh";
+  };
+
+  updateGradient();
+
+  // Optional: update every hour
+  const interval = setInterval(updateGradient, 60 * 60 * 1000);
+
+  return () => clearInterval(interval);
+}, []);
 
   useEffect(() => {
     const savedStage = localStorage.getItem("plantStage");
@@ -71,7 +111,7 @@ export default function PlantGrowth() {
   };
 
   return (
-    <div style={{ textAlign: "center" }}>
+    <div style={{ textAlign: "center", paddingTop: "20px" }}>
       <h2>Daily Bloom</h2>
       {/* state label */}
       <p style={{ fontSize: "1.2rem", marginBottom: "10px", color: "#555" }}>

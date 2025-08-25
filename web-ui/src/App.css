@@ -5,8 +5,10 @@ body, html {
   padding: 0;
   font-family: sans-serif;
   min-height: 100vh;
-  background: #7ccfeb;
-  background: linear-gradient(0deg, rgba(124, 207, 235, 1) 0%, rgba(152, 201, 217, 1) 50%, rgba(207, 238, 252, 1) 100%);
+}
+.app-background{
+  min-height: 100vh;
+  position: relative;
 }
 
 button {
